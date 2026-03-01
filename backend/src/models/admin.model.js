@@ -44,6 +44,8 @@ exports.listOrders = () => {
         orderBy: { id: "desc" },
         include: {
             user: { select: { id: true, email: true } },
+            items: { include: { product: { select: { id: true, name: true } } } },
+            payment: true,
         },
     });
 };
