@@ -8,6 +8,7 @@ router.post("/stripe/webhook", paymentController.stripeWebhook);
 
 // Protected routes
 router.post("/stripe/session", requireAuth, paymentController.stripeCheckout);
+router.post("/cod", requireAuth, paymentController.codCheckout);
 router.post("/paypal/create", requireAuth, paymentController.paypalCreate);
 router.post("/paypal/capture/:paypalOrderId", requireAuth, paymentController.paypalCapture);
 

@@ -47,5 +47,5 @@ exports.updateProduct = async (id, data) => {
 
 exports.deleteProduct = async (id) => {
     await exports.getProductById(id);
-    return productModel.remove(id);
+    return productModel.removeWithCascade(id);
 };

@@ -6,8 +6,8 @@ const { PrismaPg } = require("@prisma/adapter-pg");
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
-const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    || "admin@admin.com";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@1234";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@gmail.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "azerty123456";
 
 async function main() {
     const existing = await prisma.user.findUnique({ where: { email: ADMIN_EMAIL } });
@@ -21,7 +21,7 @@ async function main() {
                 where: { email: ADMIN_EMAIL },
                 data: { role: "ADMIN" },
             });
-            console.log(`✔  User promoted to ADMIN: ${ADMIN_EMAIL}`);
+            console.log(`User promoted to ADMIN: ${ADMIN_EMAIL}`);
         }
         return;
     }
@@ -37,7 +37,7 @@ async function main() {
         select: { id: true, email: true, role: true },
     });
 
-    console.log("✔  Admin created:", admin);
+    console.log("Admin created:", admin);
     console.log(`   Email    : ${ADMIN_EMAIL}`);
     console.log(`   Password : ${ADMIN_PASSWORD}`);
 }

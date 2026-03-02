@@ -26,6 +26,19 @@ exports.stripeWebhook = async (req, res, next) => {
 
 // ─── PayPal ──────────────────────────────────────────────────────────────────
 
+// ─── Cash on Delivery ───────────────────────────────────────────────────────
+
+exports.codCheckout = async (req, res, next) => {
+    try {
+        const { orderId } = req.body;
+        if (!orderId) return res.status(400).json({ message: "orderId is required" });
+        const result = await paymentService.createCodPayment(Number(orderId), req.user.id);
+        res.json(result);
+    } catch (e) {
+        next(e);
+    }
+};
+
 exports.paypalCreate = async (req, res, next) => {
     try {
         const { orderId } = req.body;

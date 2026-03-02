@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  # Database
+  db:
+    image: postgres:16
+    container_name: uni_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: uni_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - uni_network
+
+  # PgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: uni_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+    networks:
+      - uni_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uni_backend
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/uni_db
+      PORT: 3001
+      NODE_ENV: production
+      JWT_SECRET: change_me_in_production
+      JWT_EXPIRES_IN: 7d
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_SUCCESS_URL: http://localhost:4200/payment/success
+      STRIPE_CANCEL_URL: http://localhost:4200/payment/cancel
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - uni_network
+
+  # Frontend (Angular)
+  frontend:
+    build:
+      context: ./front-angular
+      dockerfile: Dockerfile
+    container_name: uni_frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+    environment:
+      API_URL: http://backend:3001/api
+    networks:
+      - uni_network
+
+volumes:
+  pgdata:
+
+networks:
+  uni_network:
+    driver: bridge

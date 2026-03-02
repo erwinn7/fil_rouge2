@@ -122,6 +122,21 @@ exports.createPaypalOrder = async (orderId, userId) => {
     return { approvalUrl: approvalLink, paypalOrderId: data.id };
 };
 
+// ─── Cash on Delivery (simulated) ───────────────────────────────────────────
+
+exports.createCodPayment = async (orderId, userId) => {
+    const order = await orderModel.findById(orderId);
+    if (!order) throw new ApiError(404, "Order not found");
+    if (order.userId !== userId) throw new ApiError(403, "Forbidden");
+    if (order.payment) throw new ApiError(400, "Order already has a payment");
+
+    await paymentModel.create(orderId, "COD", order.total, `cod_${orderId}_${Date.now()}`);
+    await paymentModel.updateStatusByOrderId(orderId, "completed");
+    await orderModel.updateStatus(null, orderId, "processing");
+
+    return { success: true, orderId };
+};
+
 exports.capturePaypalOrder = async (paypalOrderId, userId) => {
     const payment = await paymentModel.findByProviderPaymentId(paypalOrderId);
     if (!payment) throw new ApiError(404, "Payment not found");

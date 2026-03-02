@@ -33,3 +33,11 @@ exports.update = (id, data) => {
 exports.remove = (id) => {
     return prisma.product.delete({ where: { id } });
 };
+
+exports.removeWithCascade = (id) => {
+    return prisma.$transaction([
+        prisma.cartItem.deleteMany({ where: { productId: id } }),
+        prisma.orderItem.deleteMany({ where: { productId: id } }),
+        prisma.product.delete({ where: { id } }),
+    ]);
+};
