@@ -215,3 +215,6 @@ docker compose up -d --build
 ---
 
 *Projet fil_rouge2 — Backend Node.js / Prisma / PostgreSQL*
+
+
+@Copilot kj,f,r,kjgf
