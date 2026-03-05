@@ -1,9 +1,11 @@
 version: "3.9"
 
 services:
+  # ── Base de données ─────────────────────────────────────────
   db:
     image: postgres:16
     container_name: uni_postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -13,27 +15,36 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d uni_db"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+    networks:
+      - uni_network
 
+  # ── pgAdmin ─────────────────────────────────────────────────
   pgadmin:
     image: dpage/pgadmin4:8
     container_name: uni_pgadmin
+    restart: unless-stopped
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    networks:
+      - uni_network
 
+  # ── Backend (migrations + seeds + serveur) ──────────────────
   backend:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: uni_backend
+    restart: unless-stopped
     ports:
       - "3001:3001"
     environment:
@@ -42,17 +53,24 @@ services:
       NODE_ENV: production
       JWT_SECRET: change_me_in_production
       JWT_EXPIRES_IN: 7d
+      ADMIN_EMAIL: admin@gmail.com
+      ADMIN_PASSWORD: azerty123456
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
-      STRIPE_SUCCESS_URL: ${STRIPE_SUCCESS_URL:-http://localhost:5173/payment/success}
-      STRIPE_CANCEL_URL: ${STRIPE_CANCEL_URL:-http://localhost:5173/payment/cancel}
+      STRIPE_SUCCESS_URL: http://localhost:4200/payment/success
+      STRIPE_CANCEL_URL: http://localhost:4200/payment/cancel
       PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
       PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
       PAYPAL_BASE_URL: ${PAYPAL_BASE_URL:-https://api-m.sandbox.paypal.com}
     depends_on:
       db:
         condition: service_healthy
-    command: sh -c "npx prisma migrate deploy && node server.js"
+    networks:
+      - uni_network
 
 volumes:
   pgdata:
+
+networks:
+  uni_network:
+    driver: bridge
