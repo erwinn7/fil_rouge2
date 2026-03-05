@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 
@@ -26,11 +26,11 @@ async function main() {
     for (const name of CATEGORIES) {
         const existing = await prisma.category.findUnique({ where: { name } });
         if (existing) {
-            console.log(`  ⏭  Already exists: ${name}`);
+            console.log(`  Already exists: ${name}`);
             skipped++;
         } else {
             await prisma.category.create({ data: { name } });
-            console.log(`  ✔  Created: ${name}`);
+            console.log(` Created: ${name}`);
             created++;
         }
     }

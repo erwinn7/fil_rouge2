@@ -21,6 +21,13 @@ app.use(cors({
 app.use("/api/payment/stripe/webhook", express.raw({ type: "application/json" }));
 
 app.use(express.json());
+
+// Force UTF-8 charset sur toutes les réponses JSON
+app.use((_req, res, next) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    next();
+});
+
 app.use("/api", routes);
 app.use(errorMiddleware);
 

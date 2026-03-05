@@ -49,9 +49,9 @@ model User {
 }
 
 model Category {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique
-  createdAt DateTime  @default(now())
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
 
   products Product[]
 }
@@ -117,14 +117,14 @@ model OrderItem {
 }
 
 model Payment {
-  id               Int             @id @default(autoincrement())
-  orderId          Int             @unique
-  provider         PaymentProvider
-  status           PaymentStatus   @default(pending)
-  amount           Float
-  providerPaymentId String         @default("")
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id                Int             @id @default(autoincrement())
+  orderId           Int             @unique
+  provider          PaymentProvider
+  status            PaymentStatus   @default(pending)
+  amount            Float
+  providerPaymentId String          @default("")
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
 
   order Order @relation(fields: [orderId], references: [id])
 }
