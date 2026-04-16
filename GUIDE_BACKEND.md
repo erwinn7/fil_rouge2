@@ -74,6 +74,10 @@ docker compose up -d --build
 
 ---
 
+Pour le frontend Next.js, voir le fichier `GUIDE_FRONTEND.md`.
+
+---
+
 ## 🗄️ 5. Voir les tables dans pgAdmin
 
 **Connexion pgAdmin** → http://localhost:5050
@@ -200,6 +204,28 @@ docker compose down -v
 # Reconstruire et redémarrer
 docker compose up -d --build
 ```
+
+---
+
+## ⏹️ 8.bis Arrêter le projet sans perdre les données
+
+### Backend (Docker)
+
+Depuis le dossier `backend` :
+
+```bash
+docker compose down
+```
+
+Cette commande arrête les conteneurs mais conserve le volume `pgdata` (donc la base PostgreSQL est gardée).
+
+### À éviter si tu veux garder les données
+
+```bash
+docker compose down -v
+```
+
+Le flag `-v` supprime les volumes Docker, donc efface les données PostgreSQL.
 
 ---
 

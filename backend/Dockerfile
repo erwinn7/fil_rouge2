@@ -15,7 +15,7 @@ ENV DATABASE_URL=${DATABASE_URL}
 RUN npx prisma generate
 
 # ── Entrypoint exécutable ─────────────────────────────────────
-RUN chmod +x entrypoint.sh
+RUN sed -i 's/\r//' entrypoint.sh && chmod +x entrypoint.sh
 
 EXPOSE 3001
 

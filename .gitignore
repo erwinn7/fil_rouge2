@@ -1,3 +1,5 @@
 front-angular/
+next-frontend/
 docker-compose.yml
 GUIDE_BACKEND.md
+GUIDE_FRONTEND.md
